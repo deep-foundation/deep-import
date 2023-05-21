@@ -2,6 +2,7 @@
 import apolloClient from '@apollo/client';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import fetch from 'cross-fetch';
 const { ApolloClient, InMemoryCache, gql } = apolloClient;
 import {DeepClient} from "@deep-foundation/deeplinks/imports/client.js";
 import {readFile} from "fs/promises";
@@ -9,6 +10,7 @@ import {generateApolloClient} from "@deep-foundation/hasura/client.js";
 function createApolloClient(uri, token) {
     return new ApolloClient({
         uri,
+        fetch,
         cache: new InMemoryCache(),
         headers: {
             Authorization: `Bearer ${token}`,
@@ -171,7 +173,7 @@ async function importData(url, jwt, filename, overwrite) {
     }
 }
 yargs(hideBin(process.argv))
-    .command('deep-export', '', (yargs) => {
+    .command('deep-import', '', (yargs) => {
         return yargs
             .option('url', { describe: 'The url to export data from', type: 'string', demandOption: true })
             .option('jwt', { describe: 'The JWT token', type: 'string', demandOption: true })
