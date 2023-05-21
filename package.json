@@ -1,0 +1,17 @@
+{
+  "name": "deep-import",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "cli utility for import data to your deep",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arsentii",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/client": "^3.7.14",
+    "@deep-foundation/deeplinks": "^0.0.163",
+    "yargs": "^17.7.2"
+  }
+}
