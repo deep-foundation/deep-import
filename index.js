@@ -2,19 +2,15 @@
 import apolloClient from '@apollo/client';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import fetch from 'cross-fetch';
-const { ApolloClient, InMemoryCache, gql } = apolloClient;
+const { gql } = apolloClient;
 import {DeepClient} from "@deep-foundation/deeplinks/imports/client.js";
 import {readFile} from "fs/promises";
 import {generateApolloClient} from "@deep-foundation/hasura/client.js";
-function createApolloClient(uri, token) {
-    return new ApolloClient({
-        uri,
-        fetch,
-        cache: new InMemoryCache(),
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+function createApolloClient(uri) {
+    return generateApolloClient({
+        path: uri.replace("https://", ""),
+        ssl: 1,
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzc4In0sImlhdCI6MTY4MzkzODI0Nn0.u_J5KUZZWfUKIyhHprcGbx__a_GrKL1ETwwuwpxz5JQ'
     });
 }
 async function getMigrationsEndId(client) {
@@ -63,6 +59,7 @@ async function createDeepClient(gqllink) {
     const apolloClient = generateApolloClient({
         path: gqllink.replace("https://", ""),
         ssl: 1,
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzc4In0sImlhdCI6MTY4MzkzODI0Nn0.u_J5KUZZWfUKIyhHprcGbx__a_GrKL1ETwwuwpxz5JQ'
     });
 
     const unloginedDeep = new DeepClient({apolloClient});
@@ -172,19 +169,32 @@ async function importData(url, jwt, filename, overwrite) {
         throw new Error("MigrationsEndId is different from MigrationsEndId in Save")
     }
 }
+
 yargs(hideBin(process.argv))
-    .command('deep-import', '', (yargs) => {
-        return yargs
-            .option('url', { describe: 'The url to export data from', type: 'string', demandOption: true })
-            .option('jwt', { describe: 'The JWT token', type: 'string', demandOption: true })
-            .option('file', { describe: 'The file to save data to', type: 'string', demandOption: false })
-            .option('overwrite', { describe: '', type: 'boolean', demandOption: false });
-
-
-    }, (argv) => {
-        importData(argv.url, argv.jwt, argv.file, argv.overwrite)
-            .catch((error) => console.error(error));
+    .option('url', {
+        describe: 'The url to export data from',
+        type: 'string',
+        demandOption: true,
     })
-    .demandCommand(1, 'You need at least one command before moving on')
+    .option('jwt', {
+        describe: 'The JWT token',
+        type: 'string',
+        demandOption: true,
+    })
+    .option('file', {
+        describe: 'The file to save data to',
+        type: 'string',
+        demandOption: true,
+    })
+    .option('overwrite', {
+        describe: '',
+        type: 'boolean',
+        demandOption: false,
+    })
     .help()
-    .argv;
+    .parseAsync()
+    .then((argv) => {
+        importData(argv.url, argv.jwt, argv.file, argv.overwrite).catch((error) =>
+            console.error(error)
+        );
+    });

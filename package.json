@@ -1,7 +1,10 @@
 {
   "name": "deep-import",
   "type": "module",
-  "version": "1.0.2",
+  "version": "1.0.6",
+  "bin": {
+    "deep-import": "index.js"
+  },
   "description": "cli utility for import data to your deep",
   "main": "index.js",
   "scripts": {
