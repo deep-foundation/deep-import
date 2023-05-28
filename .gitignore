@@ -4,4 +4,4 @@ node_modules
 schema.graphql
 untitled1.iml
 .env
-!/Saves
+*dump*/
