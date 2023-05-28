@@ -69,9 +69,9 @@ function deleteLinksGreaterThanId(client, id) {
     .catch((error) => console.error(error));
 }
 
-async function createDeepClient(gqllink) {
+async function createDeepClient(gqlLink) {
     const apolloClient = generateApolloClient({
-        path: gqllink.replace("https://", ""),
+        path: gqlLink.replace("https://", ""),
         ssl: 1,
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzc4In0sImlhdCI6MTY4MzkzODI0Nn0.u_J5KUZZWfUKIyhHprcGbx__a_GrKL1ETwwuwpxz5JQ'
     });
@@ -89,8 +89,8 @@ export async function getLinksFromFile(filename) {
     return JSON.parse(data)
 }
 
-async function insertLinksFromFile(filename, gqllink, linksData, diff=0, MigrationsEndId, overwrite) {
-    let deep  = await createDeepClient(gqllink)
+async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, MigrationsEndId, overwrite) {
+    let deep  = await createDeepClient(gqlLink)
     try {
         const links = [];
         const objects = [];
