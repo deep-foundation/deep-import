@@ -89,13 +89,13 @@ export async function getLinksFromFile(filename) {
     return JSON.parse(data)
 }
 
-async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, MigrationsEndId, overwrite) {
+async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, MigrationsEndId, overwrite, debug) {
     let deep  = await createDeepClient(gqlLink)
     try {
-        const links = [];
-        const objects = [];
-        const numbers = [];
-        const strings = [];
+        let links = [];
+        let objects = [];
+        let numbers = [];
+        let strings = [];
 
         for (let i = 1; i < linksData.length; i++) {
             const link = linksData[i];
@@ -146,39 +146,72 @@ async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, Migrati
             if (link.object) {
                 objects.push(link.object);
             }
+            if (debug){
+                const response = await deep.serial({
+                    operations: [
+                        {
+                            table: 'links',
+                            type: 'insert',
+                            objects: links
+                        },
+                        {
+                            table: 'objects',
+                            type: 'insert',
+                            objects: objects
+                        },
+                        {
+                            table: 'numbers',
+                            type: 'insert',
+                            objects: numbers
+                        },
+                        {
+                            table: 'strings',
+                            type: 'insert',
+                            objects: strings
+                        }
+                    ]
+                });
+                console.log(i)
+                console.log(response)
+                links = [];
+                objects = [];
+                numbers = [];
+                strings = [];
+            }
         }
 
-        await deep.serial({
-            operations: [
-                {
-                    table: 'links',
-                    type: 'insert',
-                    objects: links
-                },
-                {
-                    table: 'objects',
-                    type: 'insert',
-                    objects: objects
-                },
-                {
-                    table: 'numbers',
-                    type: 'insert',
-                    objects: numbers
-                },
-                {
-                    table: 'strings',
-                    type: 'insert',
-                    objects: strings
-                }
-            ]
-        });
-
+        if (!debug){
+            await deep.serial({
+                operations: [
+                    {
+                        table: 'links',
+                        type: 'insert',
+                        objects: links
+                    },
+                    {
+                        table: 'objects',
+                        type: 'insert',
+                        objects: objects
+                    },
+                    {
+                        table: 'numbers',
+                        type: 'insert',
+                        objects: numbers
+                    },
+                    {
+                        table: 'strings',
+                        type: 'insert',
+                        objects: strings
+                    }
+                ]
+            });
+        }
         console.log('Data inserted successfully');
     } catch (error) {
         console.error(error);
     }
 }
-async function importData(url, jwt, filename, overwrite) {
+async function importData(url, jwt, filename, overwrite, debug) {
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
@@ -188,10 +221,10 @@ async function importData(url, jwt, filename, overwrite) {
     if (MigrationsEndId === SaveMigrationsEndId) {
         if (overwrite) {
             deleteLinksGreaterThanId(client, MigrationsEndId)
-            await insertLinksFromFile(filename, url, linksData);
+            await insertLinksFromFile(filename, url, linksData, 0, 0, false, debug);
         } else {
             let diff = lastLinkId - MigrationsEndId
-            await insertLinksFromFile(filename, url, linksData, diff, MigrationsEndId, overwrite)
+            await insertLinksFromFile(filename, url, linksData, diff, MigrationsEndId, overwrite, debug)
         }
     }
     else {
@@ -220,10 +253,15 @@ yargs(hideBin(process.argv))
         type: 'boolean',
         demandOption: false,
     })
+    .option('debug', {
+        describe: '',
+        type: 'boolean',
+        demandOption: false,
+    })
     .help()
     .parseAsync()
     .then((argv) => {
-        importData(argv.url, argv.jwt, argv.file, argv.overwrite).catch((error) =>
+        importData(argv.url, argv.jwt, argv.file, argv.overwrite, argv.debug).catch((error) =>
             console.error(error)
         );
     });
