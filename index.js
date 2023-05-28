@@ -136,14 +136,17 @@ async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, Migrati
             });
 
             if (link.string) {
+                link.string.link_id = link.id
                 strings.push(link.string);
             }
 
             if (link.number) {
+                link.number.link_id = link.id
                 numbers.push(link.number);
             }
 
             if (link.object) {
+                link.object.link_id = link.id
                 objects.push(link.object);
             }
             if (debug){
@@ -171,8 +174,18 @@ async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, Migrati
                         }
                     ]
                 });
-                console.log(i)
-                console.log(response)
+                console.log(
+                    JSON.stringify({
+                        request: {
+                            link: links,
+                            string: strings,
+                            number: numbers,
+                            object: objects,
+
+                        },
+                        response: response
+                    }, null, 2)
+                )
                 links = [];
                 objects = [];
                 numbers = [];
