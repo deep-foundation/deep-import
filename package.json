@@ -1,9 +1,9 @@
 {
   "name": "deep-import",
   "type": "module",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "bin": {
-    "deep-import": "index.js"
+    "deep-import": "cli.js"
   },
   "description": "cli utility for import data to your deep",
   "main": "index.js",

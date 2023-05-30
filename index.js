@@ -1,7 +1,4 @@
-#!/usr/bin/env node
 import apolloClient from '@apollo/client';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 const { gql } = apolloClient;
 import {DeepClient} from "@deep-foundation/deeplinks/imports/client.js";
 import {readFile} from "fs/promises";
@@ -224,7 +221,7 @@ async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, Migrati
         console.error(error);
     }
 }
-async function importData(url, jwt, filename, overwrite, debug) {
+export async function importData(url, jwt, filename, overwrite, debug) {
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
@@ -244,37 +241,3 @@ async function importData(url, jwt, filename, overwrite, debug) {
         throw new Error("MigrationsEndId is different from MigrationsEndId in Save")
     }
 }
-
-yargs(hideBin(process.argv))
-    .option('url', {
-        describe: 'The url to export data from',
-        type: 'string',
-        demandOption: true,
-    })
-    .option('jwt', {
-        describe: 'The JWT token',
-        type: 'string',
-        demandOption: true,
-    })
-    .option('file', {
-        describe: 'The file to save data to',
-        type: 'string',
-        demandOption: true,
-    })
-    .option('overwrite', {
-        describe: '',
-        type: 'boolean',
-        demandOption: false,
-    })
-    .option('debug', {
-        describe: '',
-        type: 'boolean',
-        demandOption: false,
-    })
-    .help()
-    .parseAsync()
-    .then((argv) => {
-        importData(argv.url, argv.jwt, argv.file, argv.overwrite, argv.debug).catch((error) =>
-            console.error(error)
-        );
-    });
