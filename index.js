@@ -6,8 +6,8 @@ import {generateApolloClient} from "@deep-foundation/hasura/client.js";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
-function createApolloClient(uri) {
-    const url = new URL(uri);
+function createApolloClient(uri, jwt) {
+    const url = new URL(uri, jwt);
     let ssl;
 
     if (url.protocol === "https:") {
@@ -21,7 +21,7 @@ function createApolloClient(uri) {
     return generateApolloClient({
         path,
         ssl,
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzc4In0sImlhdCI6MTY4MzkzODI0Nn0.u_J5KUZZWfUKIyhHprcGbx__a_GrKL1ETwwuwpxz5JQ'
+        token: jwt
     });
 }
 async function getMigrationsEndId(client) {
@@ -66,12 +66,8 @@ function deleteLinksGreaterThanId(client, id) {
     .catch((error) => console.error(error));
 }
 
-async function createDeepClient(gqlLink) {
-    const apolloClient = generateApolloClient({
-        path: gqlLink.replace("https://", ""),
-        ssl: 1,
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzc4In0sImlhdCI6MTY4MzkzODI0Nn0.u_J5KUZZWfUKIyhHprcGbx__a_GrKL1ETwwuwpxz5JQ'
-    });
+async function createDeepClient(url, jwt) {
+    const apolloClient = createApolloClient(url, jwt)
 
     const unloginedDeep = new DeepClient({apolloClient});
     const guest = await unloginedDeep.guest();
@@ -86,8 +82,8 @@ export async function getLinksFromFile(filename) {
     return JSON.parse(data)
 }
 
-async function insertLinksFromFile(filename, gqlLink, linksData, diff=0, MigrationsEndId, overwrite, debug) {
-    let deep  = await createDeepClient(gqlLink)
+async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
+    let deep  = await createDeepClient(gqlLink, jwt)
     try {
         let links = [];
         let objects = [];
@@ -231,10 +227,10 @@ export async function importData(url, jwt, filename, overwrite, debug) {
     if (MigrationsEndId === SaveMigrationsEndId) {
         if (overwrite) {
             deleteLinksGreaterThanId(client, MigrationsEndId)
-            await insertLinksFromFile(filename, url, linksData, 0, 0, false, debug);
+            await insertLinksFromFile(filename, url, jwt,linksData, 0, 0, false, debug);
         } else {
             let diff = lastLinkId - MigrationsEndId
-            await insertLinksFromFile(filename, url, linksData, diff, MigrationsEndId, overwrite, debug)
+            await insertLinksFromFile(filename, url, jwt, linksData, diff, MigrationsEndId, overwrite, debug)
         }
     }
     else {
