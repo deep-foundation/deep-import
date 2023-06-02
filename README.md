@@ -1,59 +1,36 @@
 # Description
-Provide a brief description of the functionality of the code and what it does.
+Cli utility that allows you to import links into your deep.
 
 # Prerequisites
 Mention any prerequisites or dependencies required to run the code.
 
 # Installation
-Provide instructions on how to install the required dependencies and set up the project.
+Navigate to the root directory of the project and then run
+
+```shell
+npm install -g .
+```
 
 # Usage
 Explain how to use the code and provide examples of command-line usage.
-
+If downloaded locally:
 ```shell
-node index.js --url <url> --jwt <jwt> --file <file> [--overwrite]
+node index.js --url <url> --jwt <jwt> --file <file> [--overwrite] [--debug]
 ```
---url: The URL to export data from. (required)
---jwt: The JWT token. (required)
---file: The file to save data to. (required)
---overwrite: [Optional] Whether to overwrite the file if it already exists.
-Options
-Explain each command-line option in detail:
-
---url: The URL to export data from. (required)
---jwt: The JWT token. (required)
---file: The file to save data to. (required)
---overwrite: [Optional] Whether to overwrite the file if it already exists.
-Examples
-Provide some usage examples with different command-line options.
-
+If downloaded globally:
 ```shell
-Copy code
-# Example 1:
-node script.js --url https://example.com/data --jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 --file output.txt
-
-# Example 2:
-node script.js --url https://example.com/data --jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 --file output.txt --overwrite
+deep-import --url <url> --jwt <jwt> --file <file> [--overwrite] [--debug]
 ```
-License
-Specify the license under which the code is distributed.
 
-Contributing
-Provide instructions on how other developers can contribute to the project, if applicable.
+--url: The URL to export data from. (required)  
+--jwt: The JWT token. (required)  
+--file: The file to import data from. (required)  
+--overwrite: [Optional] Whether to overwrite your links if it already exists.  
+--debug: [Optional] Allows you to see which links are inserted and in what order, which allows you to track down errors.  
 
-Acknowledgments
-Acknowledge any external resources, libraries, or contributors that have influenced or helped the project.
+# License
+Unlicensed
 
-Troubleshooting
-Provide information on common issues and how to troubleshoot them.
-
-Support
-Provide information on how users can get support or report issues.
-
-Authors
-List the authors or contributors of the code.
-
-Related Links
-Provide links to any related documentation, tutorials, or resources.
-
-Make sure to replace script.js with the actual name of the script file containing the code. Feel free to customize and add more sections as per your project requirements.
+# Related Links
+https://deep.foundation
+https://github.com/deep-foundation
