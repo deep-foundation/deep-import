@@ -7,7 +7,7 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 function createApolloClient(uri, jwt) {
-    const url = new URL(uri, jwt);
+    const url = new URL(uri);
     let ssl;
 
     if (url.protocol === "https:") {
@@ -84,11 +84,14 @@ export async function getLinksFromFile(filename) {
 
 async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
     let deep  = await createDeepClient(gqlLink, jwt)
+    const ssl = deep.apolloClient.ssl;
+    const path = deep.apolloClient.path.slice(0, -4);
     try {
         let links = [];
         let objects = [];
         let numbers = [];
         let strings = [];
+        let files = [];
 
         for (let i = 1; i < linksData.length; i++) {
             const link = linksData[i];
@@ -107,19 +110,7 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
                 }
             }
             if (link.file){
-                const ssl = deep.apolloClient.ssl;
-                const path = deep.apolloClient.path.slice(0, -4);
-                let savedfilename = link.file.name
-                const extension = savedfilename.split('.').pop();
-                let form = new FormData();
-                form.append('file', fs.createReadStream(`${filename}/${link.id}.${extension}`));
-                await axios.post(`${ssl ? "https://" : "http://"}${path}/${link.file.name}`, form, {
-                    headers: {
-                        'linkId': link.id,
-                        "Authorization": `Bearer ${deep.token}`,
-                        ...form.getHeaders()
-                    },
-                })
+                files.push(link)
             }
             links.push({
                 id: link.id,
@@ -174,15 +165,28 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
                             string: strings,
                             number: numbers,
                             object: objects,
-
+                            files: files
                         },
                         response: response
                     }, null, 2)
                 )
+                for (let link of files) {
+                    let savedfilename = link.file.name
+                    const extension = savedfilename.split('.').pop();
+                    let formData = new FormData();
+                    formData.append('file', fs.createReadStream(`${filename}/${link.id}.${extension}`));
+                    await axios.post(`http${ssl ? "s" : ""}://${path}/file`, formData, {
+                        headers: {
+                            'linkId': link.id,
+                            "Authorization": `Bearer ${deep.token}`,
+                        },
+                    })
+                }
                 links = [];
                 objects = [];
                 numbers = [];
                 strings = [];
+                files = [];
             }
         }
 
@@ -211,6 +215,18 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
                     }
                 ]
             });
+            for (let link of files) {
+                let savedfilename = link.file.name
+                const extension = savedfilename.split('.').pop();
+                let formData = new FormData();
+                formData.append('file', fs.createReadStream(`${filename}/${link.id}.${extension}`));
+                await axios.post(`http${ssl ? "s" : ""}://${path}/file`, formData, {
+                    headers: {
+                        'linkId': link.id,
+                        "Authorization": `Bearer ${deep.token}`,
+                    },
+                })
+            }
         }
         console.log('Data inserted successfully');
     } catch (error) {
