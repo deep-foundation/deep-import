@@ -34,3 +34,15 @@ Unlicensed
 # Related Links
 https://deep.foundation
 https://github.com/deep-foundation
+--url: The URL to export data from. (required)  
+--jwt: The JWT token. (required)  
+--file: The file to import data from. (required)  
+--overwrite: [Optional] Whether to overwrite your links if it already exists.  
+--debug: [Optional] Allows you to see which links are inserted and in what order, which allows you to track down errors.  
+
+# License
+Unlicensed
+
+# Related Links
+https://deep.foundation
+https://github.com/deep-foundation
