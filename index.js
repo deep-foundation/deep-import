@@ -11,9 +11,9 @@ function createApolloClient(uri, jwt) {
     let ssl;
 
     if (url.protocol === "https:") {
-        ssl = 1;
+        ssl = true;
     } else if (url.protocol === "http:") {
-        ssl = 0;
+        ssl = false;
     } else {
         throw new Error(`Unsupported protocol: ${url.protocol}`);
     }
