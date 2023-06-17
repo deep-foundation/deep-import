@@ -83,7 +83,18 @@ export async function getLinksFromFile(filename) {
 }
 
 async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
-    let deep  = await createDeepClient(gqlLink, jwt)
+    let deep = await createDeepClient(gqlLink, jwt);
+    // let ids = linksData.map(link => link.id);
+    // let minId = Math.min(ids);
+    // let maxId = Math.max(ids);
+    // let rangeToReserve = maxId - minId;
+
+    const reservedIds = await deep.reserve(linksData.length);
+    const idsMap = {};
+    for (const link in linksData) {
+        idsMap[link.id] = reservedIds.pop();
+    }
+
     const ssl = deep.apolloClient.ssl;
     const path = deep.apolloClient.path.slice(0, -4);
     try {
@@ -95,20 +106,38 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
 
         for (let i = 1; i < linksData.length; i++) {
             const link = linksData[i];
-            if (!overwrite && diff !== 0) {
-                if (link.id > MigrationsEndId) {
-                    link.id += diff
-                }
-                if (link.from_id > MigrationsEndId) {
-                    link.from_id += diff
-                }
-                if (link.to_id > MigrationsEndId) {
-                    link.to_id += diff
-                }
-                if (link.type_id > MigrationsEndId) {
-                    link.type_id += diff
-                }
+            // if (!overwrite && diff !== 0) {
+            //     if (link.id > MigrationsEndId) {
+            //         link.id += diff
+            //     }
+            //     if (link.from_id > MigrationsEndId) {
+            //         link.from_id += diff
+            //     }
+            //     if (link.to_id > MigrationsEndId) {
+            //         link.to_id += diff
+            //     }
+            //     if (link.type_id > MigrationsEndId) {
+            //         link.type_id += diff
+            //     }
+            // }
+
+            console.log('before', link);
+
+            if (idsMap[link.id]) {
+                link.id = idsMap[link.id];
             }
+            if (idsMap[link.type_id]) {
+                link.type_id = idsMap[link.type_id];
+            }
+            if (idsMap[link.from_id]) {
+                link.from_id = idsMap[link.from_id];
+            }
+            if (idsMap[link.to_id]) {
+                link.to_id = idsMap[link.to_id];
+            }
+
+            console.log('after', link);
+
             if (link.file){
                 files.push(link)
             }
@@ -234,6 +263,8 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
     }
 }
 export async function importData(url, jwt, filename, overwrite, debug) {
+    console.log('test');
+
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
