@@ -15,8 +15,8 @@ yargs(hideBin(process.argv))
         type: 'string',
         demandOption: true,
     })
-    .option('file', {
-        describe: 'The file to save data to',
+    .option('directory-name', {
+        describe: 'The directory name to save data to',
         type: 'string',
         demandOption: true,
     })
