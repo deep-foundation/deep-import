@@ -266,7 +266,7 @@ export async function importData(url, jwt, directoryName, overwrite, debug) {
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
-    const linksData = await fsExtra.readJson(`${directoryName}/data.json`, 'utf8');
+    const linksData = await fsExtra.readJson(`${directoryName}/links.json`, 'utf8');
     const SaveMigrationsEndId = linksData[0]["id"]
 
     if (MigrationsEndId === SaveMigrationsEndId) {
