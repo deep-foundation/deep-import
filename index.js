@@ -6,6 +6,7 @@ import {generateApolloClient} from "@deep-foundation/hasura/client.js";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
+import fsExtra from 'fs-extra'
 function createApolloClient(uri, jwt) {
     const url = new URL(uri);
     let ssl;
@@ -77,12 +78,8 @@ async function createDeepClient(url, jwt) {
     });
     return new DeepClient({deep: guestDeep, ...admin})
 }
-export async function getLinksFromFile(filename) {
-    const data = await readFile(`${filename}/${filename}.json`, 'utf8');
-    return JSON.parse(data)
-}
 
-async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
+async function insertLinksFromFile(directoryName, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
     let deep = await createDeepClient(gqlLink, jwt);
     // let ids = linksData.map(link => link.id);
     // let minId = Math.min(ids);
@@ -203,7 +200,7 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
                     let savedfilename = link.file.name
                     const extension = savedfilename.split('.').pop();
                     let formData = new FormData();
-                    formData.append('file', fs.createReadStream(`${filename}/${link.id}.${extension}`));
+                    formData.append('file', fs.createReadStream(`${directoryName}/${link.id}.${extension}`));
                     await axios.post(`http${ssl ? "s" : ""}://${path}/file`, formData, {
                         headers: {
                             'linkId': link.id,
@@ -248,7 +245,7 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
                 let savedfilename = link.file.name
                 const extension = savedfilename.split('.').pop();
                 let formData = new FormData();
-                formData.append('file', fs.createReadStream(`${filename}/${link.id}.${extension}`));
+                formData.append('file', fs.createReadStream(`${directoryName}/${link.id}.${extension}`));
                 await axios.post(`http${ssl ? "s" : ""}://${path}/file`, formData, {
                     headers: {
                         'linkId': link.id,
@@ -262,22 +259,23 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
         console.error(error);
     }
 }
-export async function importData(url, jwt, filename, overwrite, debug) {
+
+export async function importData(url, jwt, directoryName, overwrite, debug) {
     console.log('test');
 
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
-    let linksData = await getLinksFromFile(filename)
+    const linksData = await fsExtra.readJson(`${directoryName}/data.json`, 'utf8');
     const SaveMigrationsEndId = linksData[0]["id"]
 
     if (MigrationsEndId === SaveMigrationsEndId) {
         if (overwrite) {
             deleteLinksGreaterThanId(client, MigrationsEndId)
-            await insertLinksFromFile(filename, url, jwt,linksData, 0, 0, false, debug);
+            await insertLinksFromFile(directoryName, url, jwt,linksData, 0, 0, false, debug);
         } else {
             let diff = lastLinkId - MigrationsEndId
-            await insertLinksFromFile(filename, url, jwt, linksData, diff, MigrationsEndId, overwrite, debug)
+            await insertLinksFromFile(directoryName, url, jwt, linksData, diff, MigrationsEndId, overwrite, debug)
         }
     }
     else {
