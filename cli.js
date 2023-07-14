@@ -6,7 +6,7 @@ import {importData} from "./index.js";
 
 yargs(hideBin(process.argv))
     .option('url', {
-        describe: 'The url to export data from',
+        describe: 'The url of graphql to export data from',
         type: 'string',
         demandOption: true,
     })
