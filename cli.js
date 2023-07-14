@@ -21,7 +21,7 @@ yargs(hideBin(process.argv))
         demandOption: true,
     })
     .option('overwrite', {
-        describe: '',
+        describe: 'Should overwrite existing links',
         type: 'boolean',
         demandOption: false,
     })
