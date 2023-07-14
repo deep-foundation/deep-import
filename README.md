@@ -17,8 +17,8 @@ deep-import --url <url> --jwt <jwt> --file <file> [--overwrite] [--debug]
 `--url`: The URL to export data from. (required)  
 `--jwt`: The JWT token. (required)  
 `--file`: The file to import data from. (required)  
-`--overwrite`: Whether to overwrite your links if it already exists.  [Optional]
-`--debug`:  Allows you to see which links are inserted and in what order, which allows you to track down errors. [Optional]
+`--overwrite`: Whether to overwrite your links if it already exists.  [Optional]  
+`--debug`:  Allows you to see which links are inserted and in what order, which allows you to track down errors. [Optional]  
 
 # Usage
 
