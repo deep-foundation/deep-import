@@ -1,54 +1,25 @@
-# Description
+[![npm](https://img.shields.io/npm/v/@deep-foundation/deep-import.svg)](https://www.npmjs.com/package/@deep-foundation/deep-import)
+[![Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/deep-foundation/deep-import) 
+[![Discord](https://badgen.net/badge/icon/discord?icon=discord&label&color=purple)](https://discord.gg/deep-foundation)
+
 Cli utility that allows you to import links into your deep.
 
-# Installation
-```shell
-npm install --global deep-import
-```
 
-# Synopsis
+# Table Of Contents
+<!-- TABLE_OF_CONTENTS_START -->
+<!-- TABLE_OF_CONTENTS_END -->
 
-```shell
-deep-import --url <url> --jwt <jwt> --file <file> [--overwrite] [--debug]
-```
-`<>` - required  
-`[]` - optional
+# Library
+See [Documentation] for examples and API
 
-`--url`: The URL to export data from. (required)  
-`--jwt`: The JWT token. (required)  
-`--file`: The file to import data from. (required)  
-`--overwrite`: Whether to overwrite your links if it already exists.  [Optional]  
-`--debug`:  Allows you to see which links are inserted and in what order, which allows you to track down errors. [Optional]  
+# Cli
+## Cli Usage
+<!-- CLI_HELP_START -->
+<!-- CLI_HELP_END -->
 
-# Usage
+## Cli Usage Ways
+<!-- CLI_USAGE_WAYS_START -->
+<!-- CLI_USAGE_WAYS_END -->
 
-## Global/Local installed
-Use `npx`
-```
-npx deep-export ...
-```
+[Documentation]: https://deep-foundation.github.io/create-typescript-npm-package/
 
-## Global installed
-```
-deep-export
-```
-
-## Local installed
-Add npm script that invokes `deep-export`
-`package.json`:
-```
-"scripts": {
-  "deep-export": "deep-export"
-}
-```
-and run it with arguments by using `npm run` and separating cli arguments by using `--` (otherwise your arguments will be considered as arguments for `npm run` command)
-```
-npm run deep-export -- ...
-```
-
-
-
-
-# Related Links
-https://deep.foundation
-https://github.com/deep-foundation

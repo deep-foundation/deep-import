@@ -2,7 +2,7 @@
 
 import yargs from "yargs";
 import {hideBin} from "yargs/helpers";
-import {importData} from "./index.js";
+import {importData} from "../deep-import.js";
 
 yargs(hideBin(process.argv))
     .option('url', {
@@ -24,16 +24,18 @@ yargs(hideBin(process.argv))
         describe: 'Should overwrite existing links',
         type: 'boolean',
         demandOption: false,
+        default: false,
     })
     .option('debug', {
         describe: '',
         type: 'boolean',
         demandOption: false,
+        default: false,
     })
     .help()
     .parseAsync()
     .then((argv) => {
-        importData(argv.url, argv.jwt, argv.file, argv.overwrite, argv.debug).catch((error) =>
+        importData(argv.url, argv.jwt, argv.directoryName, argv.overwrite, argv.debug).catch((error) =>
             console.error(error)
         );
     });

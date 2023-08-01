@@ -1,4 +1,4 @@
-import apolloClient from '@apollo/client';
+import apolloClient, { ApolloClient } from '@apollo/client';
 const { gql } = apolloClient;
 import {DeepClient} from "@deep-foundation/deeplinks/imports/client.js";
 import {readFile} from "fs/promises";
@@ -7,7 +7,9 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 import fsExtra from 'fs-extra'
-function createApolloClient(uri, jwt) {
+import { Link } from '@deep-foundation/deeplinks/imports/minilinks';
+
+function createApolloClient(uri: string, jwt: string) {
     const url = new URL(uri);
     let ssl;
 
@@ -25,7 +27,7 @@ function createApolloClient(uri, jwt) {
         token: jwt
     });
 }
-async function getMigrationsEndId(client) {
+async function getMigrationsEndId(client: ApolloClient<any>) {
     const result = await client.query({
         query: gql`
             query Links {
@@ -37,7 +39,7 @@ async function getMigrationsEndId(client) {
     });
     return result.data.links[0].id;
 }
-async function getLastLinkId(client) {
+async function getLastLinkId(client: ApolloClient<any>) {
     const result = await client.query({
         query: gql`
             query Links {
@@ -49,7 +51,7 @@ async function getLastLinkId(client) {
     });
     return result.data.links[0].id;
 }
-function deleteLinksGreaterThanId(client, id) {
+function deleteLinksGreaterThanId(client: ApolloClient<any>, id: string) {
     client
     .mutate({
         mutation: gql`
@@ -67,7 +69,7 @@ function deleteLinksGreaterThanId(client, id) {
     .catch((error) => console.error(error));
 }
 
-async function createDeepClient(url, jwt) {
+async function createDeepClient(url: string, jwt: string) {
     const apolloClient = createApolloClient(url, jwt)
 
     const unloginedDeep = new DeepClient({apolloClient});
@@ -79,7 +81,7 @@ async function createDeepClient(url, jwt) {
     return new DeepClient({deep: guestDeep, ...admin})
 }
 
-async function insertLinksFromFile(directoryName, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
+async function insertLinksFromFile(directoryName:string, gqlLink: string, jwt: string, linksData: Array<Link<number>>, diff=0, MigrationsEndId: number, overwrite: boolean, debug: boolean) {
     let deep = await createDeepClient(gqlLink, jwt);
     // let ids = linksData.map(link => link.id);
     // let minId = Math.min(ids);
@@ -87,13 +89,13 @@ async function insertLinksFromFile(directoryName, gqlLink, jwt, linksData, diff=
     // let rangeToReserve = maxId - minId;
 
     const reservedIds = await deep.reserve(linksData.length);
-    const idsMap = {};
-    for (const link in linksData) {
+    const idsMap: Record<number, any> = {};
+    for (const link of linksData) {
         idsMap[link.id] = reservedIds.pop();
     }
 
     const ssl = deep.apolloClient.ssl;
-    const path = deep.apolloClient.path.slice(0, -4);
+    const path = deep.apolloClient.path?.slice(0, -4);
     try {
         let links = [];
         let objects = [];
@@ -126,11 +128,11 @@ async function insertLinksFromFile(directoryName, gqlLink, jwt, linksData, diff=
             if (idsMap[link.type_id]) {
                 link.type_id = idsMap[link.type_id];
             }
-            if (idsMap[link.from_id]) {
-                link.from_id = idsMap[link.from_id];
+            if (idsMap[link.from_id!]) {
+                link.from_id = idsMap[link.from_id!];
             }
-            if (idsMap[link.to_id]) {
-                link.to_id = idsMap[link.to_id];
+            if (idsMap[link.to_id!]) {
+                link.to_id = idsMap[link.to_id!];
             }
 
             console.log('after', link);
@@ -260,7 +262,7 @@ async function insertLinksFromFile(directoryName, gqlLink, jwt, linksData, diff=
     }
 }
 
-export async function importData(url, jwt, directoryName, overwrite, debug) {
+export async function importData(url: string, jwt: string, directoryName: string, overwrite: boolean, debug: boolean) {
     console.log('test');
 
     const client = createApolloClient(url, jwt)
