@@ -13,7 +13,8 @@
     "library:build:dirty": "ts-node --esm ./automation/library/build.ts",
     "library:build:generate-package-class": "generate-package-class",
     "documentation:generate": "cross-env DEBUG=* ts-node --esm ./automation/documentation/generate.ts",
-    "library:documentation:generate": "typedoc ./src/main.ts"
+    "library:documentation:generate": "typedoc ./src/main.ts",
+    "npm-release": "npm-release"
   },
   "author": "Arsentii",
   "license": "Unlicense",
