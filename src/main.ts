@@ -1,0 +1,1 @@
+export {importData} from './deep-import.js'
